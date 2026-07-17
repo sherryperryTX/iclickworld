@@ -110,9 +110,14 @@ export type ListingSearch = {
   sort?: string; // newest | price_asc | price_desc | beds_desc
   page?: number; // 1-based
   pageSize?: number;
+  agentIds?: string[]; // filter to specific ListAgentMlsId values (Sherry's listings)
 };
 
 export const PAGE_SIZE = 24;
+
+// Sherry Perry's MLS agent IDs — used to feature her own listings.
+// NTREIS (DFW) and Bryan-College Station MLS assign different IDs.
+export const SHERRY_AGENT_IDS = ["0563194", "Praytshe122"];
 
 // Property types offered in the search UI. Values must match the RESO
 // Data Dictionary PropertyType enumeration used by Trestle.
@@ -160,6 +165,12 @@ function buildFilter(s: ListingSearch): string {
   if (s.baths && s.baths > 0) clauses.push(`BathroomsTotalInteger ge ${Math.floor(s.baths)}`);
   if (s.propertyType && s.propertyType !== "Any") {
     clauses.push(`PropertyType eq '${esc(s.propertyType)}'`);
+  }
+  if (s.agentIds && s.agentIds.length > 0) {
+    const ors = s.agentIds
+      .filter((id) => id && id.trim())
+      .map((id) => `ListAgentMlsId eq '${esc(id.trim())}'`);
+    if (ors.length) clauses.push(`(${ors.join(" or ")})`);
   }
 
   return clauses.join(" and ");
@@ -251,6 +262,35 @@ export async function getListingByKey(key: string): Promise<TrestleListing | nul
 export async function getListings(options?: { top?: number; filter?: string }): Promise<TrestleListing[]> {
   const result = await searchListings({ pageSize: options?.top ?? PAGE_SIZE });
   return result.listings;
+}
+
+// Sherry's OWN active listings for the homepage carousel, ordered so
+// traditional residential-for-sale listings come first, then everything else,
+// newest first within each group. Leases and REO can be de-prioritized here.
+export async function getMyListings(limit = 12): Promise<TrestleListing[]> {
+  const result = await searchListings({
+    agentIds: SHERRY_AGENT_IDS,
+    pageSize: 50,
+    sort: "newest",
+  });
+
+  const rank = (l: TrestleListing): number => {
+    const t = (l.PropertyType ?? "").toLowerCase();
+    if (t === "residential") return 0; // traditional sale first
+    if (t === "land" || t === "farm") return 1;
+    if (t.startsWith("commercial")) return 2;
+    if (t.includes("lease")) return 4; // leases last
+    return 3;
+  };
+
+  return result.listings
+    .slice()
+    .sort((a, b) => {
+      const r = rank(a) - rank(b);
+      if (r !== 0) return r;
+      return (b.ModificationTimestamp ?? "").localeCompare(a.ModificationTimestamp ?? "");
+    })
+    .slice(0, limit);
 }
 
 // Returns photo URLs for a listing, ordered, photos first.
