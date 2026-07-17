@@ -33,6 +33,9 @@ function parseSearch(sp: SearchParams): ListingSearch {
     propertyType: first(sp.type),
     sort: first(sp.sort),
     page: toInt(sp.page) ?? 1,
+    agentIds: first(sp.agent)
+      ? (first(sp.agent) as string).split(",").map((s) => s.trim()).filter(Boolean)
+      : undefined,
   };
 }
 
