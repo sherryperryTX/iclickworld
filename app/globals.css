@@ -232,3 +232,14 @@ h2.sec{font-size:30px;margin:0 0 6px;font-weight:800}
 .inbox-empty-mark{font-size:34px;color:var(--blue);margin-bottom:8px}
 .inbox-empty h3{font-family:var(--font-display);font-weight:800;font-size:20px;margin:0 0 6px;color:var(--ink);text-transform:capitalize}
 .inbox-empty p{color:var(--muted);font-size:15px;margin:0}
+
+/* ---- Community / SEO pages ---- */
+.community-quicklinks{display:flex;gap:10px;flex-wrap:wrap}
+.community-quicklinks .ql{padding:8px 15px;border-radius:100px;border:1px solid var(--line);background:#fff;color:var(--ink);text-decoration:none;font-size:14px;font-weight:600}
+.community-quicklinks .ql:hover{border-color:var(--blue);color:var(--blue)}
+.community-copy p{font-size:16px;color:#333b44;line-height:1.65;margin:0 0 14px;max-width:760px}
+.community-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+.community-tile{display:flex;flex-direction:column;gap:2px;padding:16px 18px;border:1px solid var(--line);border-radius:var(--r-lg);background:#fff;text-decoration:none;box-shadow:var(--sh-sm);transition:.12s}
+.community-tile:hover{transform:translateY(-2px);border-color:var(--blue);box-shadow:var(--sh-lg)}
+.community-tile b{font-family:var(--font-display);font-weight:800;font-size:17px;color:var(--ink)}
+.community-tile span{font-size:13px;color:var(--muted)}
