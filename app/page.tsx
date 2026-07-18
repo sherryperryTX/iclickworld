@@ -1,13 +1,17 @@
 import Link from "next/link";
 import SearchBar from "@/components/SearchBar";
 import ListingCard from "@/components/ListingCard";
-import { getMyListings, isTrestleConfigured, type TrestleListing } from "@/lib/trestle";
+import { getMyListings, debugMyListings, isTrestleConfigured, type TrestleListing } from "@/lib/trestle";
 
 export const dynamic = "force-dynamic";
 
 const TABS = ["Buy", "Sell", "Land", "Commercial", "REO"];
 
-export default async function HomePage() {
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams?: { debug?: string };
+}) {
   let mine: TrestleListing[] = [];
   if (isTrestleConfigured()) {
     try {
@@ -17,8 +21,27 @@ export default async function HomePage() {
     }
   }
 
+  // TEMP: /?debug=listings prints Sherry's listings with the REO signal fields.
+  let debug: Awaited<ReturnType<typeof debugMyListings>> | null = null;
+  if (searchParams?.debug === "listings" && isTrestleConfigured()) {
+    try {
+      debug = await debugMyListings();
+    } catch {
+      debug = null;
+    }
+  }
+
   return (
     <>
+      {debug && (
+        <pre style={{ whiteSpace: "pre-wrap", padding: 16, fontSize: 12, background: "#111", color: "#9CCB3D", overflow: "auto" }}>
+          {`Sherry's active listings (${debug.length}) — REO signal check\n\n` +
+            debug
+              .map((d) => `${d.reo ? "REO " : "STD "} | ${d.type ?? "?"} | ${d.status ?? "?"} | special="${d.special}" | ${d.city ?? ""} | ${d.key}`)
+              .join("\n")}
+        </pre>
+      )}
+
       {/* HERO */}
       <section className="hero">
         <div className="container">
@@ -55,16 +78,17 @@ export default async function HomePage() {
           <div className="container">
             <div className="sec-head">
               <div>
-                <p className="eyebrow">Sherry&apos;s Listings</p>
-                <h2 className="sec">Featured homes</h2>
+                <p className="eyebrow">Homes for sale with Sherry</p>
+                <h2 className="sec">Sherry&apos;s listings</h2>
                 <p className="sec-sub">
-                  Sherry Perry&apos;s active listings — updated live from the MLS.
+                  Traditional homes and land represented by Sherry Perry — updated live from the MLS.
+                  Thinking about selling? This is where your home would be featured.
                 </p>
               </div>
               <Link className="link-more" href="/listings">View all listings →</Link>
             </div>
             <div className="rail">
-              {mine.slice(0, 4).map((l) => (
+              {mine.slice(0, 8).map((l) => (
                 <ListingCard key={l.ListingKey} listing={l} />
               ))}
             </div>
