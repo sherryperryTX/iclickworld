@@ -2,6 +2,7 @@ import Link from "next/link";
 import {
   searchListings,
   isTrestleConfigured,
+  SHERRY_AGENT_IDS,
   type ListingSearch,
   type SearchResult,
 } from "@/lib/trestle";
@@ -23,6 +24,15 @@ function toInt(v: string | string[] | undefined): number | undefined {
   return Number.isFinite(n) ? n : undefined;
 }
 
+// `?agent=me` (or mine/clickpoint/sherry) is a friendly alias for Sherry's
+// own MLS agent IDs, so "View all listings" can show only CLICKpoint listings.
+function resolveAgentIds(raw?: string): string[] | undefined {
+  if (!raw) return undefined;
+  if (/^(me|mine|clickpoint|sherry)$/i.test(raw.trim())) return SHERRY_AGENT_IDS;
+  const ids = raw.split(",").map((s) => s.trim()).filter(Boolean);
+  return ids.length ? ids : undefined;
+}
+
 function parseSearch(sp: SearchParams): ListingSearch {
   return {
     q: first(sp.q),
@@ -33,9 +43,7 @@ function parseSearch(sp: SearchParams): ListingSearch {
     propertyType: first(sp.type),
     sort: first(sp.sort),
     page: toInt(sp.page) ?? 1,
-    agentIds: first(sp.agent)
-      ? (first(sp.agent) as string).split(",").map((s) => s.trim()).filter(Boolean)
-      : undefined,
+    agentIds: resolveAgentIds(first(sp.agent)),
   };
 }
 
@@ -48,6 +56,7 @@ function buildQuery(search: ListingSearch, page: number): string {
   if (search.baths) p.set("baths", String(search.baths));
   if (search.propertyType && search.propertyType !== "Any") p.set("type", search.propertyType);
   if (search.sort) p.set("sort", search.sort);
+  if (search.agentIds && search.agentIds.length) p.set("agent", search.agentIds.join(","));
   if (page > 1) p.set("page", String(page));
   const s = p.toString();
   return s ? `/listings?${s}` : "/listings";
@@ -85,15 +94,31 @@ export default async function ListingsPage({
   }
 
   const page = search.page ?? 1;
+  const mineView = !!(search.agentIds && search.agentIds.length);
 
   return (
     <div className="container" style={{ padding: "32px 0 64px" }}>
-      <h1 style={{ marginBottom: 8 }}>Search Homes</h1>
-      <p style={{ color: "#5a655e", marginTop: 0 }}>
-        Live MLS listings across Texas — Bryan/College Station and the DFW metro.
-      </p>
-
-      <SearchBar current={search} />
+      {mineView ? (
+        <>
+          <p className="eyebrow" style={{ marginBottom: 6 }}>CLICKpoint Realty</p>
+          <h1 style={{ marginBottom: 8 }}>Sherry&apos;s listings</h1>
+          <p style={{ color: "#5a655e", marginTop: 0, maxWidth: 640 }}>
+            Every active listing represented by Sherry Perry, CLICKpoint Realty — updated live from
+            the MLS.{" "}
+            <Link href="/listings" style={{ color: "var(--blue)", fontWeight: 600 }}>
+              Search all Texas homes →
+            </Link>
+          </p>
+        </>
+      ) : (
+        <>
+          <h1 style={{ marginBottom: 8 }}>Search Homes</h1>
+          <p style={{ color: "#5a655e", marginTop: 0 }}>
+            Live MLS listings across Texas — Bryan/College Station and the DFW metro.
+          </p>
+          <SearchBar current={search} />
+        </>
+      )}
 
       {error && (
         <div className="card" style={{ borderColor: "#c0392b", color: "#c0392b", margin: "16px 0" }}>
