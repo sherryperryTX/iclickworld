@@ -1,17 +1,13 @@
 import Link from "next/link";
 import SearchBar from "@/components/SearchBar";
 import ListingCard from "@/components/ListingCard";
-import { getMyListings, debugMyListings, isTrestleConfigured, type TrestleListing } from "@/lib/trestle";
+import { getMyListings, isTrestleConfigured, type TrestleListing } from "@/lib/trestle";
 
 export const dynamic = "force-dynamic";
 
 const TABS = ["Buy", "Sell", "Land", "Commercial", "REO"];
 
-export default async function HomePage({
-  searchParams,
-}: {
-  searchParams?: { debug?: string };
-}) {
+export default async function HomePage() {
   let mine: TrestleListing[] = [];
   if (isTrestleConfigured()) {
     try {
@@ -21,27 +17,8 @@ export default async function HomePage({
     }
   }
 
-  // TEMP: /?debug=listings prints Sherry's listings with the REO signal fields.
-  let debug: Awaited<ReturnType<typeof debugMyListings>> | null = null;
-  if (searchParams?.debug === "listings" && isTrestleConfigured()) {
-    try {
-      debug = await debugMyListings();
-    } catch {
-      debug = null;
-    }
-  }
-
   return (
     <>
-      {debug && (
-        <pre style={{ whiteSpace: "pre-wrap", padding: 16, fontSize: 12, background: "#111", color: "#9CCB3D", overflow: "auto" }}>
-          {`Sherry's active listings (${debug.length}) — REO signal check\n\n` +
-            debug
-              .map((d) => `${d.reo ? "REO " : "STD "} | ${d.type ?? "?"} | ${d.status ?? "?"} | special="${d.special}" | ${d.city ?? ""} | ${d.key}`)
-              .join("\n")}
-        </pre>
-      )}
-
       {/* HERO */}
       <section className="hero">
         <div className="container">
