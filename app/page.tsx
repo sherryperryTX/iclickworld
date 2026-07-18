@@ -62,7 +62,7 @@ export default async function HomePage() {
                   Thinking about selling? This is where your home would be featured.
                 </p>
               </div>
-              <Link className="link-more" href="/listings">View all listings →</Link>
+              <Link className="link-more" href="/listings?agent=me">View all Sherry&apos;s listings →</Link>
             </div>
             <div className="rail">
               {mine.slice(0, 8).map((l) => (
