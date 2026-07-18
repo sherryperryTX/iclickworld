@@ -22,6 +22,7 @@ export default function NavBar() {
             <div className="links">
               <Link href="/listings">Buy</Link>
               <Link href="/listings?type=Land">Land</Link>
+              <Link href="/communities">Communities</Link>
               <Link href="/about">About Sherry</Link>
               <a href="https://reo.properties" target="_blank" rel="noopener noreferrer">REO ↗</a>
               <Link href="/contact">Contact</Link>

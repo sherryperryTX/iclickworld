@@ -23,6 +23,14 @@ export default function Footer() {
             <Link href="/listings">All listings</Link>
           </div>
           <div>
+            <h5>Communities</h5>
+            <Link href="/communities/college-station">College Station</Link>
+            <Link href="/communities/bryan">Bryan</Link>
+            <Link href="/communities/brenham">Brenham</Link>
+            <Link href="/communities/navasota">Navasota</Link>
+            <Link href="/communities">All communities</Link>
+          </div>
+          <div>
             <h5>Company</h5>
             <Link href="/about">About Sherry</Link>
             <Link href="/contact">Contact</Link>
