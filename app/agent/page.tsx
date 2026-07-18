@@ -28,6 +28,14 @@ export default async function AgentDashboard() {
         also runs as its own standalone site — this page is just a launcher.
       </p>
 
+      <a href="/agent/leads" className="leads-cta">
+        <div>
+          <b>Leads inbox</b>
+          <span>Inquiries from the iClickHomes.com contact form — name, contact, and what they need.</span>
+        </div>
+        <span className="leads-cta-go">Open inbox →</span>
+      </a>
+
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 16, marginTop: 24 }}>
         {agentTools.map((tool) => (
           <div key={tool.name} className="card">
