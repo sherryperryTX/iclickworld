@@ -23,7 +23,7 @@ export default function AboutPage() {
         <div className="about-body">
           <div>
             <div style={{ display: "flex", justifyContent: "center" }}>
-              <div className="avatar" aria-hidden="true">SP</div>
+              <img className="avatar" src="/sherry-perry.jpg" alt="Sherry Perry, Broker/Owner of CLICKpoint Realty" width={180} height={180} />
             </div>
             <div className="creds" style={{ flexDirection: "column", marginTop: 18 }}>
               <div className="cred"><b>25 years</b> of Texas real estate</div>
