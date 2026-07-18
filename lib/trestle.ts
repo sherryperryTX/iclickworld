@@ -119,7 +119,10 @@ export const PAGE_SIZE = 24;
 
 // Sherry Perry's MLS agent IDs — used to feature her own listings.
 // NTREIS (DFW) and Bryan-College Station MLS assign different IDs.
-export const SHERRY_AGENT_IDS = ["0563194", "Praytshe122"];
+// IMPORTANT: Trestle OData `eq` is CASE-SENSITIVE. The BCS feed stores this as
+// "PRAYTSHE122" (uppercase); using "Praytshe122" silently matched nothing and
+// hid all of Sherry's Bryan/College Station listings. Keep the exact casing.
+export const SHERRY_AGENT_IDS = ["0563194", "PRAYTSHE122"];
 
 // Property types offered in the search UI. Values must match the RESO
 // Data Dictionary PropertyType enumeration used by Trestle.
@@ -264,70 +267,6 @@ export async function getListingByKey(key: string): Promise<TrestleListing | nul
 export async function getListings(options?: { top?: number; filter?: string }): Promise<TrestleListing[]> {
   const result = await searchListings({ pageSize: options?.top ?? PAGE_SIZE });
   return result.listings;
-}
-
-// TEMP diagnostic — probes the feed several ways to locate ALL of Sherry's
-// listings (other statuses, other agent IDs, brokerage office). Remove after.
-export async function debugProbe() {
-  const base = process.env.TRESTLE_API_BASE;
-  if (!base) return { error: "no base" };
-  const token = await getToken();
-
-  const agentClause = `(ListAgentMlsId eq '0563194' or ListAgentMlsId eq 'Praytshe122')`;
-  // Keep it to a few FAST queries. $count over broad `contains` filters is slow,
-  // so only count the agent query; for the office query just pull a small sample.
-  const queries: { key: string; filter: string; count: boolean }[] = [
-    { key: "agent_ALL_statuses", filter: agentClause, count: true },
-    { key: "office_CLICKpoint", filter: `contains(ListOfficeName,'CLICKpoint')`, count: false },
-  ];
-
-  const out: Record<string, unknown> = {};
-  for (const { key, filter, count } of queries) {
-    try {
-      const params = new URLSearchParams({
-        $filter: filter,
-        $top: "30",
-        $orderby: "ModificationTimestamp desc",
-        $select:
-          "ListingKey,ListAgentMlsId,ListAgentFullName,ListOfficeName,StandardStatus,PropertyType,City",
-      });
-      if (count) params.set("$count", "true");
-      const res = await fetch(`${base}/Property?${params.toString()}`, {
-        headers: { Authorization: `Bearer ${token}` },
-        cache: "no-store",
-      });
-      if (!res.ok) {
-        out[key] = { error: `${res.status}: ${(await res.text().catch(() => "")).slice(0, 200)}` };
-        continue;
-      }
-      const json = (await res.json()) as {
-        value: TrestleListing[];
-        "@odata.count"?: number;
-      };
-      // Tally by agent id + by status to reveal team listings / other statuses.
-      const byAgent: Record<string, number> = {};
-      const byStatus: Record<string, number> = {};
-      for (const v of json.value) {
-        const a = `${v.ListAgentFullName ?? "?"} (${v.ListAgentMlsId ?? "?"})`;
-        byAgent[a] = (byAgent[a] || 0) + 1;
-        const s = v.StandardStatus ?? "?";
-        byStatus[s] = (byStatus[s] || 0) + 1;
-      }
-      out[key] = {
-        totalCount: json["@odata.count"] ?? undefined,
-        returned: json.value.length,
-        office: json.value[0]?.ListOfficeName ?? "?",
-        byAgent,
-        byStatus,
-        sample: json.value.slice(0, 8).map(
-          (v) => `${v.StandardStatus ?? "?"} | ${v.ListAgentFullName ?? "?"} (${v.ListAgentMlsId ?? "?"}) | ${v.PropertyType ?? "?"} | ${v.City ?? "?"}`
-        ),
-      };
-    } catch (e) {
-      out[key] = { error: e instanceof Error ? e.message : "err" };
-    }
-  }
-  return out;
 }
 
 // REO / bank-owned / foreclosure detection. The authoritative signal is the
