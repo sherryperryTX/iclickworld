@@ -90,6 +90,7 @@ export type TrestleListing = {
   PropertySubType?: string;
   StandardStatus?: string;
   MlsStatus?: string;
+  SpecialListingConditions?: string[] | string;
   PublicRemarks?: string;
   ListOfficeName?: string;
   ListAgentFullName?: string;
@@ -264,9 +265,57 @@ export async function getListings(options?: { top?: number; filter?: string }): 
   return result.listings;
 }
 
-// Sherry's OWN active listings for the homepage carousel, ordered so
-// traditional residential-for-sale listings come first, then everything else,
-// newest first within each group. Leases and REO can be de-prioritized here.
+// TEMP diagnostic — lists Sherry's active listings with the REO signal fields
+// so we can confirm how her feed tags REO vs traditional. Remove after verifying.
+export async function debugMyListings() {
+  const result = await searchListings({ agentIds: SHERRY_AGENT_IDS, pageSize: 50, sort: "newest" });
+  return result.listings.map((l) => ({
+    key: l.ListingKey,
+    city: l.City,
+    type: l.PropertyType,
+    status: l.StandardStatus,
+    special: Array.isArray(l.SpecialListingConditions)
+      ? l.SpecialListingConditions.join("|")
+      : l.SpecialListingConditions ?? "",
+    reo: isREO(l),
+  }));
+}
+
+// REO / bank-owned / foreclosure detection. The authoritative signal is the
+// RESO `SpecialListingConditions` field ("Standard" vs "REO" / "Real Estate
+// Owned" / "HUD Owned" / "Notice Of Default" / foreclosure). A house that is
+// bank-owned is still PropertyType = "Residential", so PropertyType alone can't
+// tell a traditional seller listing apart from an REO — this field can.
+const REO_RE =
+  /\breo\b|real estate owned|hud[\s-]?owned|bank[\s-]?owned|foreclos|notice of default|sheriff'?s sale|auction/i;
+
+function specialConditionsText(l: TrestleListing): string {
+  const raw = l.SpecialListingConditions;
+  const arr = Array.isArray(raw) ? raw : raw ? [raw] : [];
+  return arr.join(" ").toLowerCase();
+}
+
+// TRUE only when the MLS special-conditions field explicitly marks the listing
+// as REO/foreclosure. Authoritative, so it's safe to exclude these from the
+// "homes for sale" carousel. We do NOT treat an empty field as REO.
+export function isREO(l: TrestleListing): boolean {
+  const sc = specialConditionsText(l);
+  return sc ? REO_RE.test(sc) : false;
+}
+
+// Weaker signal: the special-conditions field was blank but the remarks/office
+// strongly read as REO. Used only to DE-PRIORITIZE (push down), never to hide,
+// so a genuine traditional listing can never be wrongly removed.
+function looksLikeReoByText(l: TrestleListing): boolean {
+  if (specialConditionsText(l)) return false; // field present → trust isREO()
+  return REO_RE.test(`${l.PublicRemarks ?? ""} ${l.ListOfficeName ?? ""}`);
+}
+
+// Sherry's OWN active listings for the homepage carousel. Traditional
+// (standard-sale) listings are what sellers relate to, so REO/bank-owned
+// listings are excluded here and surfaced separately in the REO section.
+// Ordering within the traditional set: residential first, then land/farm,
+// then commercial, leases last; newest first within each group.
 export async function getMyListings(limit = 12): Promise<TrestleListing[]> {
   const result = await searchListings({
     agentIds: SHERRY_AGENT_IDS,
@@ -274,22 +323,45 @@ export async function getMyListings(limit = 12): Promise<TrestleListing[]> {
     sort: "newest",
   });
 
+  const all = result.listings.slice();
+  // Exclude explicit REO so traditional seller listings lead the front page.
+  const nonReo = all.filter((l) => !isREO(l));
+  const pool = nonReo.length ? nonReo : all;
+
   const rank = (l: TrestleListing): number => {
     const t = (l.PropertyType ?? "").toLowerCase();
-    if (t === "residential") return 0; // traditional sale first
-    if (t === "land" || t === "farm") return 1;
-    if (t.startsWith("commercial")) return 2;
-    if (t.includes("lease")) return 4; // leases last
-    return 3;
+    let base: number;
+    if (t === "residential") base = 0; // traditional sale first
+    else if (t === "land" || t === "farm") base = 1;
+    else if (t.startsWith("commercial")) base = 2;
+    else if (t.includes("lease")) base = 4; // leases last
+    else base = 3;
+    if (looksLikeReoByText(l)) base += 10; // soft de-prioritize likely-REO
+    return base;
   };
 
-  return result.listings
+  return pool
     .slice()
     .sort((a, b) => {
       const r = rank(a) - rank(b);
       if (r !== 0) return r;
       return (b.ModificationTimestamp ?? "").localeCompare(a.ModificationTimestamp ?? "");
     })
+    .slice(0, limit);
+}
+
+// Sherry's OWN active REO / bank-owned listings (the complement of
+// getMyListings), newest first — for the REO section if we want to feature a
+// few of her actual bank-owned homes.
+export async function getMyReoListings(limit = 8): Promise<TrestleListing[]> {
+  const result = await searchListings({
+    agentIds: SHERRY_AGENT_IDS,
+    pageSize: 50,
+    sort: "newest",
+  });
+  return result.listings
+    .filter((l) => isREO(l))
+    .sort((a, b) => (b.ModificationTimestamp ?? "").localeCompare(a.ModificationTimestamp ?? ""))
     .slice(0, limit);
 }
 
