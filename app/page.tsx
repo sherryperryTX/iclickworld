@@ -106,7 +106,7 @@ export default async function HomePage() {
         <div className="container">
           <div className="auth">
             <div style={{ display: "flex", justifyContent: "center" }}>
-              <div className="avatar" aria-hidden="true">SP</div>
+              <img className="avatar" src="/sherry-perry.jpg" alt="Sherry Perry, Broker/Owner of CLICKpoint Realty" width={180} height={180} />
             </div>
             <div>
               <p className="eyebrow">Your Texas broker</p>
