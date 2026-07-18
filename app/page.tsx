@@ -1,17 +1,13 @@
 import Link from "next/link";
 import SearchBar from "@/components/SearchBar";
 import ListingCard from "@/components/ListingCard";
-import { getMyListings, debugProbe, isTrestleConfigured, type TrestleListing } from "@/lib/trestle";
+import { getMyListings, isTrestleConfigured, type TrestleListing } from "@/lib/trestle";
 
 export const dynamic = "force-dynamic";
 
 const TABS = ["Buy", "Sell", "Land", "Commercial", "REO"];
 
-export default async function HomePage({
-  searchParams,
-}: {
-  searchParams?: { debug?: string };
-}) {
+export default async function HomePage() {
   let mine: TrestleListing[] = [];
   if (isTrestleConfigured()) {
     try {
@@ -21,23 +17,8 @@ export default async function HomePage({
     }
   }
 
-  let probe: Awaited<ReturnType<typeof debugProbe>> | null = null;
-  if (searchParams?.debug === "probe" && isTrestleConfigured()) {
-    try {
-      probe = await debugProbe();
-    } catch {
-      probe = null;
-    }
-  }
-
   return (
     <>
-      {probe && (
-        <pre style={{ whiteSpace: "pre-wrap", padding: 16, fontSize: 12, background: "#111", color: "#9CCB3D", overflow: "auto" }}>
-          {JSON.stringify(probe, null, 2)}
-        </pre>
-      )}
-
       {/* HERO */}
       <section className="hero">
         <div className="container">
