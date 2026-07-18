@@ -7,13 +7,17 @@ export const dynamic = "force-dynamic";
 export async function GET() {
   try {
     const data = await debugProbe();
-    return new Response(JSON.stringify(data, null, 2), {
-      headers: { "content-type": "text/plain; charset=utf-8" },
-    });
+    const body = JSON.stringify(data, null, 2)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;");
+    return new Response(
+      `<!doctype html><meta charset="utf-8"><title>probe</title><pre style="font:13px monospace;white-space:pre-wrap;padding:16px">${body}</pre>`,
+      { headers: { "content-type": "text/html; charset=utf-8" } }
+    );
   } catch (e) {
     return new Response(
-      "probe error: " + (e instanceof Error ? e.message : "unknown"),
-      { status: 500, headers: { "content-type": "text/plain; charset=utf-8" } }
+      `<!doctype html><pre>probe error: ${e instanceof Error ? e.message : "unknown"}</pre>`,
+      { status: 500, headers: { "content-type": "text/html; charset=utf-8" } }
     );
   }
 }
