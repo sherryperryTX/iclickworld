@@ -7,7 +7,7 @@ export default function Footer() {
         <div className="cols">
           <div>
             <Link href="/" className="logo" style={{ marginBottom: 12 }}>
-              <span className="mk" aria-hidden="true" />
+              <img className="mk" src="/clickpoint-logo.jpg" alt="CLICKpoint Realty" width={34} height={34} />
               <span className="wm" style={{ color: "#fff" }}>iClickHomes<b>.com</b></span>
             </Link>
             <p style={{ color: "#aeb6bf", fontSize: 13.5, maxWidth: 300 }}>

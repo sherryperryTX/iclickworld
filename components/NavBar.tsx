@@ -16,7 +16,7 @@ export default function NavBar() {
         <div className="container">
           <nav className="nav">
             <Link href="/" className="logo" aria-label="iClickHomes.com home">
-              <span className="mk" aria-hidden="true" />
+              <img className="mk" src="/clickpoint-logo.jpg" alt="CLICKpoint Realty" width={34} height={34} />
               <span className="wm">iClickHomes<b>.com</b></span>
             </Link>
             <div className="links">
