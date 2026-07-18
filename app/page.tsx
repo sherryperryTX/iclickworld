@@ -96,7 +96,7 @@ export default async function HomePage() {
               <h3>What&apos;s your home worth in today&apos;s market?</h3>
               <p>Get a straightforward valuation from Sherry — backed by live comparable sales, not a generic algorithm.</p>
             </div>
-            <Link className="btn white lg" href="/contact">Get a Home Valuation →</Link>
+            <Link className="btn white lg" href="/contact?interest=valuation">Get a Home Valuation →</Link>
           </div>
         </div>
       </section>

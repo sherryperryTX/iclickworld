@@ -162,3 +162,33 @@ h2.sec{font-size:30px;margin:0 0 6px;font-weight:800}
 @media(max-width:820px){.about-body{grid-template-columns:1fr}}
 .about-body p{font-size:16px;color:#333b44;margin:0 0 16px;max-width:680px}
 .counties{background:var(--gray);border:1px solid var(--line);border-radius:var(--r-lg);padding:18px 20px;margin-top:8px}
+
+/* ---- Contact page ---- */
+.contact-grid{display:grid;grid-template-columns:1fr 320px;gap:36px;padding:44px 0}
+@media(max-width:860px){.contact-grid{grid-template-columns:1fr}}
+.contact-card{background:#fff;border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--sh-sm);padding:28px}
+.lead-form{display:flex;flex-direction:column;gap:16px}
+.lead-form .field{display:flex;flex-direction:column;gap:6px}
+.lead-form .field-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:520px){.lead-form .field-row{grid-template-columns:1fr}}
+.lead-form label{font-family:var(--font-display);font-weight:600;font-size:13.5px;color:var(--ink)}
+.lead-form textarea{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:var(--r-md);font-size:15px;font-family:var(--font-body);background:#fff;color:var(--ink);resize:vertical;min-height:120px}
+.lead-form textarea:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(52,153,213,.35)}
+.lead-actions{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-top:4px}
+.lead-note{font-size:13.5px;color:var(--muted)}
+.lead-note a{color:var(--blue);font-weight:600}
+.lead-err{background:#fdecec;border:1px solid #f5c2c2;color:#b02a2a;border-radius:var(--r-md);padding:10px 12px;font-size:14px;margin:0}
+.lead-ok{text-align:center;padding:26px 8px}
+.lead-ok-mark{width:56px;height:56px;border-radius:100px;background:var(--green);color:#fff;font-size:30px;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 14px}
+.lead-ok h3{font-family:var(--font-display);font-weight:800;font-size:22px;margin:0 0 8px;color:var(--ink)}
+.lead-ok p{color:var(--muted);font-size:15px;max-width:420px;margin:0 auto}
+.contact-side{background:var(--gray);border:1px solid var(--line);border-radius:var(--r-lg);padding:24px;height:fit-content}
+.contact-side h4{font-family:var(--font-display);font-weight:800;font-size:19px;margin:0}
+.contact-role{color:var(--muted);font-size:14px;margin:4px 0 0}
+.contact-lines{display:flex;flex-direction:column;gap:2px;margin:14px 0}
+.contact-lines a{color:var(--blue);font-weight:600;font-size:15px}
+.contact-meta{color:var(--muted);font-size:13px;font-style:italic}
+.contact-block{border-top:1px solid var(--line);padding-top:12px;margin-top:12px}
+.contact-block b{font-family:var(--font-display);font-size:12.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink)}
+.contact-block p{margin:5px 0 0;font-size:14px;color:#3b4650;line-height:1.5}
+.contact-side .btn{margin-top:16px;width:100%}
