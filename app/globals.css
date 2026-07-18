@@ -192,3 +192,43 @@ h2.sec{font-size:30px;margin:0 0 6px;font-weight:800}
 .contact-block b{font-family:var(--font-display);font-size:12.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink)}
 .contact-block p{margin:5px 0 0;font-size:14px;color:#3b4650;line-height:1.5}
 .contact-side .btn{margin-top:16px;width:100%}
+
+/* ---- Agent leads inbox ---- */
+.leads-cta{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:22px;padding:20px 22px;border-radius:var(--r-lg);background:linear-gradient(100deg,var(--blue),var(--blue-700));color:#fff;text-decoration:none;box-shadow:var(--sh-sm)}
+.leads-cta:hover{transform:translateY(-1px);box-shadow:var(--sh-lg)}
+.leads-cta b{font-family:var(--font-display);font-size:18px;display:block}
+.leads-cta span{font-size:13.5px;color:rgba(255,255,255,.9)}
+.leads-cta-go{font-weight:700;white-space:nowrap;font-size:14.5px}
+.inbox-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:18px}
+.inbox-filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.inbox-tab{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:100px;border:1px solid var(--line);background:#fff;color:var(--ink);text-decoration:none;font-size:14px;font-weight:600}
+.inbox-tab:hover{border-color:var(--blue)}
+.inbox-tab.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+.inbox-count{font-family:var(--font-mono);font-size:12px;background:rgba(0,0,0,.08);padding:1px 7px;border-radius:100px}
+.inbox-tab.active .inbox-count{background:rgba(255,255,255,.25)}
+.inbox-list{display:flex;flex-direction:column;gap:14px}
+.lead-item{border:1px solid var(--line);border-left:4px solid var(--line);border-radius:var(--r-lg);padding:18px 20px;background:#fff;box-shadow:var(--sh-sm)}
+.lead-item.status-new{border-left-color:var(--orange)}
+.lead-item.status-contacted{border-left-color:var(--blue)}
+.lead-item.status-closed{border-left-color:var(--green);opacity:.72}
+.lead-item-top{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.lead-name{font-family:var(--font-display);font-weight:800;font-size:17px;color:var(--ink)}
+.lead-badge{display:inline-block;margin-left:10px;font-size:12px;font-weight:600;color:var(--blue-700);background:rgba(52,153,213,.12);padding:2px 9px;border-radius:100px;vertical-align:middle}
+.status-pill{display:inline-block;margin-left:8px;font-family:var(--font-mono);font-size:10.5px;letter-spacing:.05em;padding:2px 8px;border-radius:100px;vertical-align:middle}
+.sp-new{background:rgba(247,152,32,.15);color:var(--orange-700)}
+.sp-contacted{background:rgba(52,153,213,.15);color:var(--blue-700)}
+.sp-closed{background:rgba(156,203,61,.2);color:var(--green-700)}
+.lead-date{font-size:13px;color:var(--muted);white-space:nowrap}
+.lead-contact{display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;font-size:14px}
+.lead-contact a{color:var(--blue);font-weight:600}
+.lead-src{color:var(--muted)}
+.lead-msg{margin:12px 0 0;font-size:14.5px;color:#333b44;line-height:1.55;white-space:pre-wrap}
+.lead-item-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.lead-item-actions form{margin:0}
+.status-btn{font-family:var(--font-body);font-size:13px;font-weight:600;padding:7px 13px;border-radius:var(--r-md);border:1px solid var(--line);background:#fff;color:var(--ink);cursor:pointer;transition:.12s}
+.status-btn:hover:not(:disabled){border-color:var(--blue);color:var(--blue)}
+.status-btn.current{background:var(--gray);color:var(--muted);cursor:default}
+.inbox-empty{text-align:center;padding:60px 20px;border:1px dashed var(--line);border-radius:var(--r-lg);background:var(--gray)}
+.inbox-empty-mark{font-size:34px;color:var(--blue);margin-bottom:8px}
+.inbox-empty h3{font-family:var(--font-display);font-weight:800;font-size:20px;margin:0 0 6px;color:var(--ink);text-transform:capitalize}
+.inbox-empty p{color:var(--muted);font-size:15px;margin:0}
