@@ -94,6 +94,7 @@ export type TrestleListing = {
   PublicRemarks?: string;
   ListOfficeName?: string;
   ListAgentFullName?: string;
+  ListAgentMlsId?: string;
   SubdivisionName?: string;
   GarageSpaces?: number;
   ModificationTimestamp?: string;
@@ -263,6 +264,62 @@ export async function getListingByKey(key: string): Promise<TrestleListing | nul
 export async function getListings(options?: { top?: number; filter?: string }): Promise<TrestleListing[]> {
   const result = await searchListings({ pageSize: options?.top ?? PAGE_SIZE });
   return result.listings;
+}
+
+// TEMP diagnostic — probes the feed several ways to locate ALL of Sherry's
+// listings (other statuses, other agent IDs, brokerage office). Remove after.
+export async function debugProbe() {
+  const base = process.env.TRESTLE_API_BASE;
+  if (!base) return { error: "no base" };
+  const token = await getToken();
+
+  const agentClause = `(ListAgentMlsId eq '0563194' or ListAgentMlsId eq 'Praytshe122')`;
+  const queries: Record<string, string> = {
+    agent_active: `${agentClause} and StandardStatus eq 'Active'`,
+    agent_ALL_statuses: agentClause,
+    office_CLICKpoint: `contains(ListOfficeName,'CLICKpoint')`,
+    office_Click: `contains(ListOfficeName,'Click')`,
+    name_Perry: `contains(ListAgentFullName,'Perry')`,
+    listagent_Perry: `contains(ListAgentFullName,'Sherry')`,
+  };
+
+  const out: Record<string, unknown> = {};
+  for (const [key, filter] of Object.entries(queries)) {
+    try {
+      const params = new URLSearchParams({
+        $filter: filter,
+        $top: "15",
+        $count: "true",
+        $orderby: "ModificationTimestamp desc",
+        $select:
+          "ListingKey,ListAgentMlsId,ListAgentFullName,ListOfficeName,StandardStatus,PropertyType,City,ListPrice",
+      });
+      const res = await fetch(`${base}/Property?${params.toString()}`, {
+        headers: { Authorization: `Bearer ${token}` },
+        cache: "no-store",
+      });
+      if (!res.ok) {
+        out[key] = { error: `${res.status}` };
+        continue;
+      }
+      const json = (await res.json()) as {
+        value: TrestleListing[];
+        "@odata.count"?: number;
+      };
+      out[key] = {
+        count: json["@odata.count"] ?? json.value.length,
+        sample: json.value
+          .slice(0, 12)
+          .map(
+            (v) =>
+              `${v.StandardStatus ?? "?"} | id=${v.ListAgentMlsId ?? "?"} | ${v.PropertyType ?? "?"} | ${v.City ?? "?"} | ${v.ListOfficeName ?? "?"} | ${v.ListAgentFullName ?? "?"}`
+          ),
+      };
+    } catch (e) {
+      out[key] = { error: e instanceof Error ? e.message : "err" };
+    }
+  }
+  return out;
 }
 
 // REO / bank-owned / foreclosure detection. The authoritative signal is the
