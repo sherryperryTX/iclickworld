@@ -265,22 +265,6 @@ export async function getListings(options?: { top?: number; filter?: string }): 
   return result.listings;
 }
 
-// TEMP diagnostic — lists Sherry's active listings with the REO signal fields
-// so we can confirm how her feed tags REO vs traditional. Remove after verifying.
-export async function debugMyListings() {
-  const result = await searchListings({ agentIds: SHERRY_AGENT_IDS, pageSize: 50, sort: "newest" });
-  return result.listings.map((l) => ({
-    key: l.ListingKey,
-    city: l.City,
-    type: l.PropertyType,
-    status: l.StandardStatus,
-    special: Array.isArray(l.SpecialListingConditions)
-      ? l.SpecialListingConditions.join("|")
-      : l.SpecialListingConditions ?? "",
-    reo: isREO(l),
-  }));
-}
-
 // REO / bank-owned / foreclosure detection. The authoritative signal is the
 // RESO `SpecialListingConditions` field ("Standard" vs "REO" / "Real Estate
 // Owned" / "HUD Owned" / "Notice Of Default" / foreclosure). A house that is
